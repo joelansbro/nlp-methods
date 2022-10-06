@@ -1,0 +1,24 @@
+061022 data notes
+
+Tonight these are some notes I took to mark down further work needed on
+cleaning up text.
+
+I know of an issue related to some titles. Titles are from the header,
+not the body of the html, meaning that some title aren't as expected.
+IE -> a title of comments, but the actual title is 
+
+Software development skills for data scientists
+
+So I have some prelim code for fixing this.
+
+
+There are significant amounts of HTML entities persist in the data from the 
+parser, I know this because it is present within the json batch most recently
+generated for the Data_Science test dataset. This will interfere with proper
+keyword collection.
+IE -> writing | trey causey contains "quot" as a keyword, which is a HTML
+entity fragment.
+This needs cleaning.
+This can be quickly sorted with the w3lib.html python package method "replace_entities"
+When running through several of the content texts, this has worked a treat.
+
