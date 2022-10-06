@@ -8,3 +8,4 @@ First the repo will contain basic methods, before continuing onto more complex N
 - PreProcessing
 - Bag of Words
 - TF-IDf
+- Building Models
