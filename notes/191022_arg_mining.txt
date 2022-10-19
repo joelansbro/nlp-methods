@@ -1,0 +1,9 @@
+191022
+
+I've got a package that looks through and finds argument sentences, matching specific words inside a sentence, as well as categorising the word. This should be helpful.
+
+I could attempt to assign weight to a rhetorical device, but I would require references to justify this weighting. Otherwise I could still highlight these in some manner.
+
+The paper that the spacy library works from is located here: https://aclanthology.org/2007.sigdial-1.5/ and I've also saved it down. 
+Essentially the paper is an analysis of opinion categories and links to a corpus of argumentation lexicon, and the package that I've found uses this as a basis.
+After testing I can say that it is definitely picking up on some of the words, which could be useful.
