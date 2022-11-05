@@ -1,0 +1,12 @@
+Running Sentiment analysis over a larger amount of articles today to see what we can describe
+
+
+Also I forgot that running in a dataframe and describing it will return a whole range of cool things:
+count	53.000000	53.0	53.0
+mean	1009.377358	1.0	1.0
+std	1605.028543	0.0	0.0
+min	1.000000	1.0	1.0
+25%	6.000000	1.0	1.0
+50%	204.000000	1.0	1.0
+75%	1113.000000	1.0	1.0
+max	6525.000000	1.0	1.0
