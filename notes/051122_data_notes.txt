@@ -206,3 +206,60 @@ Speed Performance
 
 Without a good GPU, Flair becomes a burden for text analysis, moving forward without it for the time being
 
+
+
+
+-----------------------------------------------------------
+Combining scores from VADER and Textblob
+to combine the two we should use a Voting Classifier, which can combine conceptually different machine learning classifiers and use a majority vote or the average of the predicted probabilities
+
+we may or may not need to use a soft voting classifier as we only have two results,
+or we could utilise the compounded result also.
+
+first step was to use the mean average from the standard python library
+statistics.mean()
+which for the first run produced the following results:
+	title	ensemble_sentiment_score	sentiment
+0	Master Python`s pandas library with these 100 ...	0.086143	POSITIVE
+1	Simulating Chutes & Ladders in Python	            0.043855	POSITIVE
+2	Thoughts on Trace Estimation in Deep Learning ...	0.085810	POSITIVE
+3	Graph Data Visualization With GraphQL & react-...	-0.012523	NEGATIVE
+4	The Waiting Time Paradox, or, Why Is My Bus Al...	0.055844	POSITIVE
+
+findings
+looking at item 40, It's your life, it's your data, there's no content, so of course this is useless
+
+Saved down the KDE that places items between the two, naturally we see a line about halfway between both
+made a scatter as well to compare
+
+
+-----------------------------------------------------------
+
+I'm going to make a new csv containing more inflamatory and negative representations of python
+to see if we can capture more negative articles.
+If the article is clearly negative to me, then we should see a negative score of at least -0.05
+If we don't, we'll have to reassess
+
+Negative articles are still skewing towards positive on the most part, the negative articles
+WHERE ensemble_polarity < 0.0 are dominated where VADER's polarity is negative, without much input from
+textblob
+
+the graph 051122_negative_kde was based on twenty articles that had <programming language> is bad in the title or some variation
+
+and it does should a trend of a shared range between both models, which does point again to correlation
+there is still a noticeable trend towards positivity, despite several articles overall being negative
+
+I think that a general write-up highlighting some of the concerns raised within the issues section would
+be interesting
+https://github.com/cjhutto/vaderSentiment/issues
+
+as on average the sentiment looks okay but could definitely be improved in further runs
+
+what may be better: running a proper ML model instead of word weight rankings, and score is computed by summing the valence scores of each word in the lexicon,
+re-running with Flair
+
+also assessing the word scores used and assessing them to see if we can make them better (ie take out artificial)
+
+among others
+
+but should be okay to place inside pipeline
