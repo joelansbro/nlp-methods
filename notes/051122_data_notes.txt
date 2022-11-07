@@ -29,6 +29,8 @@ python -m spacy download en_core_web_sm
 
 
 spacytextblob uses TextBlob's sentiment analysis - https://textblob.readthedocs.io/en/dev/api_reference.html#textblob.blob.TextBlob.sentiment
+lead dev behind TextBlob - https://github.com/sloria
+struggling to find any meaningful written whitepaper or journal article around Textblob however I believe the comparisons between Textblob and other NLP methods should be useful to justify it's reliability
 
 sentiment
 
@@ -100,3 +102,54 @@ Ensemble Learning may be useful to employ here:
 https://en.wikipedia.org/wiki/Ensemble_learning - which means combine more of the sentiment analyses for better results
 
 TODO: Employ both VADER and FLAIR in the NLP extraction and see what we get, and if we should aggregate the results.
+
+
+71122 replaced the 22 articles with 210 articles for a wider sample
+
+210 articles took about a minute to process takes about 3.8 seconds per article, when we run this job on pyspark, 
+run the nlp function inside a pyspark lambda job this will divide up the table in parts on each executor and speed it up considerably
+
+amongst 210 articles the polarity range is 0.3060757343015408 which is a larger improvement on the smaller amount of articles
+
+The polarity and word count scatter plot is a lot more of what I wanted to see - it has a range of sentiment polarity for each article spread out evenly. Though my hypothesis looks correct - as the word count increases, the more tokens in the text begin to weight each other out and the sentiment begins to smooth out towards zero, meaning that the more words in an article the less polarised negative or positive it becomes. 
+This isn't necessarily a draw back - one would assume the more content of a post the greater the likelihood of an even assessment of the topic area. That said the graph does even out overall at 0.1 which does suggest more positive polarity bias, which may just be a feature of blog articles about a technology overall - the blogs chosen in the 210 corpus are taken from Google results which would emphasise more positive rounded articles than negative or inflamatory articles, and when writing about a technology topic aimed at teaching people a tech, an author expectedly would be promoting the technology, not denegrating it. 
+
+Looking at outliers:
+The lowest polarity contains a lot of the word "Previously" which doesn't strike me as overall negative. 
+the highest polarity isn't particularly interesting to look at as it's so short - 31 words. Still, it is positive, it's about the fact that there are lots of jobs available for Data Scientists, which is positive. 
+Coffee and Tea in charts is rated as largely positive at 0.4, however it's one of the excerpts taken as content so it's data is low in worth.
+Informatica Data Quality Review is rated fairly high at 0.258, and the article is a positive review (I believe an advertisment) for a technology
+
+Moving on to negative polarity
+The softmax function derivative is rated -0.069 so close to neutral sentiment - reading it it's how to improve on a not very good algorithm, so this would make sense for neutrality
+
+Looking at AI,ML, NN and DL:a visual explanation,
+is rated dead neutral which is strange, the visual side of the article hasn't been parsed so we could consider the data incomplete, also the words Artificial and Popular are both rated -0.6 and 0.6 so they cancel one another out, low word count at 46 these are the only ones with a polarity score. Funny that artificial here has been used in the negative sense (this coffee tastes artificial) whereas the context is missing that the article is about artificial intelligence 
+
+Finding the closest parent of a git branch is also rated neutral, this is fine however because the problem lies with the article, it's an article that just presents a code snippet, no opinion mentioned, this should be excluded from results. 
+
+the most egregious outlier here is the Nethack Reinforcement Learning article - it skews just negative, at -0.0493 polarity, but it's fine it's an advert for a game, the issue comes with several negative polarity words which in context just describe the game - ie: [enemy]...can really _damage_the agent. That said, it only skews barely under the metric of positive, perhaps more sentiment analysis libraries would be able to boost this significantly. 
+
+
+----
+Articles used in this search: ['10 Most Influential People in Data Analytics', '3 Use Cases for Real-Time Blockchain Analytics', 'A Year After: Has Blockchain Changed Advertising by 2022?', 'AI, ML, NN and DL: a visual explanation', 'Abusing AI', 'Accessible visualization with Olli JavaScript library', 'Adaptive data analysis', 'Alpine Investors Makes Bet on Harnessing Big Data', 'An 8-hour course on R and Data\xa0Mining', 'Analyzing Housing Prices in Berkeley', 'Announcing GA of DataFlow Functions - Cloudera Blog', 'Announcing General Availability of Delta Sharing - The Databricks Blog', 'Approaching fairness in machine learning', 'Arcadia aggregates energy data for companies to build climate-friendly products, raises $200M', 'Artificial intelligence in insurance: Use cases and 4 best impacts', 'Automate data archival for Amazon Redshift time series tables | Amazon Web Services', 'Being Irresponsible About\xa0AI', 'Best practices when sharing your data analysis - Jupyter Notebooks', 'Big data challenges for CMOs and cherry-picking chiefs', 'Building Blocks for Modern Data Management: Data Subassemblies and Data Products – Part 1', 'Building an accessible agricultural data community with the National Agricultural Producers Data Cooperative', 'CFP: AusDM 2018, Bathurst, Australia, 28-30 Nov\xa02018', 'Can BigQuery, Snowflake, and Redshift Handle Real-Time Data Analytics?', 'Can a dentist become a data scientist? (spoiler: YES)', 'Cloudera Recognized as 2022 Gartner® Peer Insights™ - Cloudera Blog', 'Coffee versus tea in charts', 'Cohort Analysis on Databricks Using Fivetran, dbt and Tableau', 'Comments', 'Common streaming data enrichment patterns in Amazon Kinesis Data Analytics for Apache Flink | Amazon Web Services', 'Coronavirus data analysis with R, tidyverse and\xa0ggplot2', 'Cross-border data transfer in China', 'Current Salaries for AI Professionals and Data\xa0Scientists', 'Data Into Dollars: Can You Turn Your Data Into Revenue?', 'Data governance framework: Best practices, examples, and providers (2022)', 'Data-savvy Organizations Are 9.5% More Profitable: Splunk', 'DataRobot Announces Launch of Dedicated Managed AI Cloud', 'Databricks Expands New Brickbuilder Solutions for Financial Services', 'Developing Kafka Data Pipelines Just Got Easier', 'Dis-aggregated hardware', 'Dive into Deep Learning', 'Easy R Tutorials with Dev Containers', 'Essential Productivity Hacks in Cloud-Centric Workplaces', 'Feature Deep Dive: Watermarking in Apache Spark Structured Streaming', 'Fighting Data Silos with Data Literacy and Transparency for All', 'Finding the closest parent of a git branch.', 'Gradient descent learns linear dynamical systems', 'Graph Data Visualization With GraphQL & react-force-graph', 'How AI Helps the Educational Sector', 'How To Select The Correct Visualization Technique for Your Data', 'How to Build Real-Time Personalization in 2022', 'How to Build a Data Strategy That Works in Your Industry', 'How to Migrate Your Data and AI Workloads to Databricks With the AWS Migration Acceleration Program', 'How to Troubleshoot and Fix Common Technical SEO Problems?', 'I-GUIDE: Increasing Sustainability by Harnessing Data', 'Illustrated Guide to ROC and AUC', 'Impact of Big Data Analytics on People’s Health: Overview of Systematic Reviews and Recommendations for Future Studies', 'Informatica Data Quality review', 'Ingest streaming data to Apache Hudi tables using AWS Glue and Apache Hudi DeltaStreamer | Amazon Web Services', 'Interview: Ashok Reddy, Chief Executive Officer, KX', 'Intro to NLP, new course on Openclassrooms', 'It’s your Life – It’s your Data', 'LOCF and Linear Imputation with PostgreSQL', 'Low-Code Software Development: From Crisis Technology to Core Technology', 'Machine learning vs data science: Differences, similarities, and future (2022)', 'Master Python`s pandas library with these 100 tricks', 'Mimicking Writing Style With Markov Chains', 'National Workshop on Data Science Education Featured Multiple Hub Talks', 'Nethack Reinforcement Learning', 'New Flink Startup Immerok Gets Off the Ground', 'New statistical learning course on openclassroooms', 'News and Advice on the World`s Latest Innovations', 'News and Advice on the World`s Latest Innovations | ZDNET', 'No Cost Data Scraping With GitHub Actions And Neo4j Aura', 'Optimization of Scientific Code with Cython: Ising Model', 'PlanetScale announces new database analysis and performance features', 'PyData NYC: The Really Short Version', 'REINVENTING SOCIETY IN THE WAKE OF BIG DATA | Edge.org', 'Recommending Subreddits by Computing User Similarity: An Introduction to Machine Learning in Python', 'Reduce GPU costs with startup scripts on the Google Cloud Engine', 'Restricting Libraries in JVM Compute Platforms', 'Risk vs. Loss', 'Serverless NiFi Flows with DataFlow Functions: The Next Step in the DataFlow Service Evolution - Cloudera Blog', 'Seven Rights Of Data Storytelling', 'Simulating Chutes & Ladders in Python', 'Slow Data', 'Solving MNIST with a Neural Network from the ground\xa0up', 'Stripe launches Data Pipeline to help users sync payments data with Redshift and Snowflake', 'TODOs for Effective ML teamwork at an early-stage startup', 'Teaching Data Science at UM6P', 'The Age of Big Data (Published 2012)', 'The Databricks Blog', 'The Future of the Data Lakehouse - Open - Cloudera Blog', 'The Impact of Technology in Healthcare', 'The Metaverse Will Be Built on Big Data and User Trust.', 'The Research Process', 'The Similarities of Solving Data Problems and Rubik’s Cubes', 'The Softmax Function Derivative (Part\xa03)', 'The State Of The Insights-Driven Business, 2022', 'The Waiting Time Paradox, or, Why Is My Bus Always Late?', 'The Women in AI Breakfast is a go, and nominations for the Women in AI Awards now open', 'The future of data architecture is hybrid: choosing your hybrid-first data strategy starts at Cloudera Now 2022 - Cloudera Blog', 'Thoughts on Trace Estimation in Deep Learning - Sebastian Nowozins slow blog', 'To Improve Enterprise Visibility, Shine a Light on Dark Data and Shadow IT', 'Top 10 Easy Data Analysis Methods and Techniques', 'Top 10 benefits of data quality', 'Unlock operational excellence through data', 'What Are the Most Serious Privacy Concerns Regarding Big Data?', 'What Are the Three Main Goals of Data Lifecycle Management', 'What Does It Mean for a Data Catalog to Be Powered by a Knowledge Graph?', 'What Is Data Modeling? Process, Tools, and Best Practices', 'What Is Data Normalization And How To Work?', 'What data integration means for workforce efficiencies', 'What does a data modeler do?', 'What is Data Observability and Why It`s Important for Modern Business Models', 'What is data in motion: Encryption, states, security and more', 'What to expect from Strata Conference 2015? An empirical outlook.', 'Who Benefits from AI Writers?', 'Why IoT is not the solution to supply chain issues', 'Why The Future of DTC Business Plans Includes a Data Strategy', 'Wide range of data exploration tools', 'YourTTS - Swiss knife for Text-to-Speech', 'writing', 'writing | trey causey']
+
+
+
+
+----------------------------------------------------------------------------
+VADER
+
+Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
+
+Says it's a sentiment analysis tool that's been used for social media, however does state that it can be used for other purposes
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+FLAIR
