@@ -96,7 +96,7 @@ saved down the results
 Polarity seems higher for articles where the word count is lower, however the articles used a fairly positive sounding, so this does sound accurate
 the range is between the highest and lowest sentiment score is as follows: 0.04717963040543682
 
-Big_Data polarity range: 0.04717963040543682
+Big_Data polarity range: 0.04717963040543682 <- the maths is wrong discount this
 
 Ensemble Learning may be useful to employ here:
 https://en.wikipedia.org/wiki/Ensemble_learning - which means combine more of the sentiment analyses for better results
@@ -106,10 +106,10 @@ TODO: Employ both VADER and FLAIR in the NLP extraction and see what we get, and
 
 71122 replaced the 22 articles with 210 articles for a wider sample
 
-210 articles took about a minute to process takes about 3.8 seconds per article, when we run this job on pyspark, 
+210 articles took about a minute to process, 55 seconds in all, when we run this job on pyspark, 
 run the nlp function inside a pyspark lambda job this will divide up the table in parts on each executor and speed it up considerably
 
-amongst 210 articles the polarity range is 0.3060757343015408 which is a larger improvement on the smaller amount of articles
+amongst 210 articles the polarity range is 0.519 which is a larger improvement on the smaller amount of articles 0.412* + -0.106
 
 The polarity and word count scatter plot is a lot more of what I wanted to see - it has a range of sentiment polarity for each article spread out evenly. Though my hypothesis looks correct - as the word count increases, the more tokens in the text begin to weight each other out and the sentiment begins to smooth out towards zero, meaning that the more words in an article the less polarised negative or positive it becomes. 
 This isn't necessarily a draw back - one would assume the more content of a post the greater the likelihood of an even assessment of the topic area. That said the graph does even out overall at 0.1 which does suggest more positive polarity bias, which may just be a feature of blog articles about a technology overall - the blogs chosen in the 210 corpus are taken from Google results which would emphasise more positive rounded articles than negative or inflamatory articles, and when writing about a technology topic aimed at teaching people a tech, an author expectedly would be promoting the technology, not denegrating it. 
@@ -140,16 +140,69 @@ Articles used in this search: ['10 Most Influential People in Data Analytics', '
 ----------------------------------------------------------------------------
 VADER
 
+https://github.com/cjhutto/vaderSentiment
+
+for citation of the whitepaper
 Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
 
 Says it's a sentiment analysis tool that's been used for social media, however does state that it can be used for other purposes
 
+Ran in VADER into the sentiment_analysis function alongside spacytextblob,
+significantly increases the run time of the function over 210 articles to 1 minute, 15 seconds.
 
 
+The compound score is computed by summing the valence scores of each word in the lexicon, adjusted according to the rules, and then normalized to be between -1 (most extreme negative) and +1 (most extreme positive). This is the most useful metric if you want a single unidimensional measure of sentiment for a given sentence. Calling it a 'normalized, weighted composite score' is accurate.
 
+ranges between -1 and 1 just like the SpacyTextBlob
 
+Ran the Vader polarity scores against word count, and something interesting happens,
+Vader rates the 210 articles very highly positive, the general trend does agree with textblob, textblob also rated the articles as positive, but vader regards the articles MUCH MORE positive in comparison. When scanning over the articles, I would agree more with Vader.
+The general Vader graph does have some negatively skewed articles which I now will need to investigate
 
+the polarity range for VADER for 210 was 1.9939, (1.0 + 0.9939) essentially the spectrum of scores
 
+A box plot shows the large difference between TB polarity scores, which fall within a narrower range, with Vader a much more generous range closer towards 1. 
+
+Taking a fine grain look, the vader polarity has some flaws:
+article: TODOs for Effective ML teamwork had vader_polarity of 0.9996 which is great, but reading the article has a lot of neutral language. 
+This is something to consider with vader as the compound polarity score has added up the positive and the neutral score, so it looks like it's higher.
+
+Ergo: the TODOs example has only 0.113 positive score from VADER with 0.836 taken neutral, and TextBlob rated it similar, 0.129 <- this score is similar to Vaders' 0.113
+
+When we look instead of compound at positive metric, the scatter plot correlates with Textblob.
+the metric 071122_210Vader_TB_Positive_KDE.png shows this abundantly that they do track in line with one another#
+
+I think I would be happy to use both methods for Ensemble Learning
 
 --------------------------------------------------------------------------------
 FLAIR
+
+
+have to generate more verbose code for this one, and when run on a single instance it took a long time,
+cpu isn't happy with it as far as I can tell....
+
+sentiment value generates a score up to 1, similar to the other NLPs,
+
+Im splitting content into sentences, running the classifier, getting the result of a positive or negative sentiment and adding them to lists. At that point im getting the mean average of sentiment scores from an article and then subtracting the negative sentiment compound from the positive sentiment compound.
+
+At this point my CPU takes off like a jet engine and the operation to find a single sentiment for one article takes 45 seconds, this is a bad idea.
+
+I am going to see if there's a wrapper for this similar to SpacytextBlob
+
+there's a faster library that is apparently slightly less accurate called sentiment-fast which used RNN, which achieves slightly slower accuracy, going to try that.
+
+can't even load sentiment-fast as it kills my ipynb kernel
+
+at this point I could keep trying to get Flair working or use the two prior working NLP models that are also fast
+considering that in order to run flair on the pipeline we would have to load Flair's model into memory, this 
+starts to become unfeasible to recreate a container in a reasonable amount of time, I'm willing to skip past this library
+
+
+Methodology
+- VADER and TextBlob are lexicon and rule-based.
+- Flair is model-based.
+Speed Performance
+- Flair is slower than TextBlob and VADER because the computation algorithm is more complicated.
+
+Without a good GPU, Flair becomes a burden for text analysis, moving forward without it for the time being
+
