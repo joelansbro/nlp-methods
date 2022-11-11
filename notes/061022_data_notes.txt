@@ -22,3 +22,56 @@ This needs cleaning.
 This can be quickly sorted with the w3lib.html python package method "replace_entities"
 When running through several of the content texts, this has worked a treat.
 
+Merged the html entities this very night. It looks to work a treat.
+
+*************************
+FURTHER NLP work
+1.
+Moving on, I notice that we have keyword issues when it comes to some
+code fragments.
+For example, one keywords contains 
+console.log(node,
+which is a messy keyword, we could do with getting rid of it
+
+2.
+There's a case where the parser has picked up the content as the 
+excerpt. This definitely needs changing.
+If content is empty, replace with excerpt?
+
+3.some keywords have come through with urls attached, these need to
+be separated out.
+
+4.included suffixes have lead to certain duplicates - 
+ie exploration / exploring - these should be merged somehow
+industrial / industry
+some aspects of these could be fixed by what is called
+Levenshtein distance - a technique of gauging how similar a word is.
+This doesnt seem like enough, however, instead this stackoverflow
+https://stackoverflow.com/questions/17317418/stemmers-vs-lemmatizers
+points out lemmatizers are the solution to identifying these words.
+
+5. some words have been concatenated ie - holdoutmethodthat -
+this is a byproduct or removing some of the spaces im sure, cleanjob
+is likely the culprit, and worth a rerun to find out.
+
+6. some words are misspelled within the blog
+ie - obersevation - 
+this is alongside the correct word, leading to a duplicate. could be
+doing with running through a pre-established dictionary, however
+this wouldn't account for novel words, especially if parsing through
+articles on new technologies (numpy wouldnt be in a dictionary, but 
+would be relevant to a keyword search for python libraries)
+
+7. code fragments have shown up in some of the searches, something 
+expected of a software engineering article, but for out purposes the
+usefulness of ie - /bin - comes into question, unless explicitly doing
+a search on linux. Thinking about this raises project constraint questions,
+whether I want to remove these kinds of keywords could be overstretching
+
+
+***************************
+
+I have sorted the keywords from the default report job into a list,
+it looks like as it stands that the words are not being duplicated
+however some of the words have typos so theyre duplicates, and should 
+be cleaned prior in the pipe. I will save these down for comparisons
